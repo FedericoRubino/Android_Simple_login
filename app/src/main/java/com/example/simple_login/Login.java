@@ -17,6 +17,8 @@ import com.example.simple_login.DataBase.UserDAO;
 
 import java.util.List;
 
+import static android.graphics.Color.rgb;
+
 public class Login extends AppCompatActivity {
 
     // wiring up buttons and entry fields
@@ -32,6 +34,9 @@ public class Login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+
+
 
         //initializing the wiring up
         passwordEntry = findViewById(R.id.password_entry);
@@ -66,17 +71,30 @@ public class Login extends AppCompatActivity {
             return;
         }
 
-        for(User user: userList){
-            if(user.getUsername().equals(username) && user.getPassword().equals(password)){
-                Intent intent = new Intent(this, MainActivity.class);
-                intent.putExtra("USERNAME",user.getUsername());
-                startActivity(intent);
-                passwordEntry.setText("");
-                return;
+        List<User> foundUsers = userDAO.getUsersByUsername(username);
+        if(foundUsers.isEmpty()){
+            Toast.makeText(this, "Username not found", Toast.LENGTH_SHORT).show();
+            usernameEntry.setBackgroundColor(rgb(150,0,100));
+            return;
+        } else {
+            usernameEntry.setBackgroundColor(rgb(255,255,255));
+            passwordEntry.setBackgroundColor(rgb(255,255,255));
+
+            for(User user: foundUsers){
+                if(user.getUsername().equals(username) && user.getPassword().equals(password)){
+                    Intent intent = new Intent(this, MainActivity.class);
+                    intent.putExtra("USERNAME",user.getUsername());
+                    startActivity(intent);
+                    passwordEntry.setText("");
+//                    usernameEntry.setBackgroundColor(rgb(255,255,255));
+//                    passwordEntry.setBackgroundColor(rgb(255,255,255));
+                    return;
+                }
             }
+            Toast.makeText(this,"Wrong password",Toast.LENGTH_SHORT).show();
+            passwordEntry.setBackgroundColor(rgb(150,0,100));
+            passwordEntry.setText("");
+            return;
         }
-        Toast.makeText(this,"wrong username or password",Toast.LENGTH_SHORT).show();
-        passwordEntry.setText("");
-        return;
     }
 }
